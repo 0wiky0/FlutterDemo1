@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
         ),
         body: new Center(
 //            child: new Text('Hello World'),
-          child:new RandomWords(),
+          child: new RandomWords(),
         ),
       ),
     );
@@ -42,10 +42,59 @@ class RandomWords extends StatefulWidget {
 }
 
 class RandomWordsState extends State<RandomWords> {
+  final _suggestions = <WordPair>[];
+
+  final _biggerFont = const TextStyle(fontSize: 18.0);
+
+  //创建ListView
+  Widget _buildSuggestions() {
+    return new ListView.builder(
+        padding: const EdgeInsets.all(16.0),
+        // The itemBuilder callback is called once per suggested word pairing,
+        // and places each suggestion into a ListTile row.
+        // For even rows, the function adds a ListTile row for the word pairing.
+        // For odd rows, the function adds a Divider widget to visually
+        // separate the entries. Note that the divider may be difficult
+        // to see on smaller devices.
+        itemBuilder: (context, i) {
+          // Add a one-pixel-high divider widget before each row in theListView.
+          if (i.isOdd) return new Divider();
+
+          // The syntax "i ~/ 2" divides i by 2 and returns an integer result.
+          // For example: 1, 2, 3, 4, 5 becomes 0, 1, 1, 2, 2.
+          // This calculates the actual number of word pairings in the ListView,
+          // minus the divider widgets.
+          final index = i ~/ 2; //除2取整
+
+          //滚动到底部则在添加10条数据
+          if (index >= _suggestions.length) {
+            _suggestions.addAll(generateWordPairs().take(10));
+          }
+
+          return _buildRow(_suggestions[index]);
+        });
+  }
+
+  //构建Item项内容
+  Widget _buildRow(WordPair pair) {
+    return new ListTile(
+      title: new Text(
+        pair.asPascalCase,
+        style: _biggerFont,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final wordPair = new WordPair.random();
-    return new Text(wordPair.asPascalCase);
+//    final wordPair = new WordPair.random();
+//    return new Text(wordPair.asPascalCase);
+    return new Scaffold(
+//      appBar: new AppBar(
+//        title: new Text('Startup Name Generator'),
+//      ),
+      body: _buildSuggestions(),
+    );
   }
 }
 
